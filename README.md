@@ -1,5 +1,9 @@
 # NetRiskScan Python SDK
 
+[![PyPI version](https://img.shields.io/pypi/v/netriskscan.svg)](https://pypi.org/project/netriskscan/)
+[![Python versions](https://img.shields.io/pypi/pyversions/netriskscan.svg)](https://pypi.org/project/netriskscan/)
+[![CI](https://github.com/TeamQQ/netriskscan-sdk-python/actions/workflows/ci.yml/badge.svg)](https://github.com/TeamQQ/netriskscan-sdk-python/actions/workflows/ci.yml)
+
 Official Python SDK for the [NetRiskScan](https://www.netriskscan.com/) IP Risk & Network Intelligence API: IP reputation, proxy/VPN/Tor detection, datacenter and search-crawler identification, and network intelligence.
 
 ```bash
@@ -275,7 +279,7 @@ Full endpoint and error-code reference: [Developer API documentation](https://ww
 
 ## NetRiskScan ecosystem
 
-- **Python SDK** (this package) -- `pip install netriskscan`
+- **Python SDK** (this package) -- [`netriskscan` on PyPI](https://pypi.org/project/netriskscan/) (`pip install netriskscan`)
 - **JavaScript / TypeScript SDK** -- [`@netriskscan/sdk`](https://www.npmjs.com/package/@netriskscan/sdk) on npm
 - **CLI** -- [`netriskscan-cli`](https://www.npmjs.com/package/netriskscan-cli) (`npx netriskscan-cli check 8.8.8.8`)
 - **Website / Developer API** -- [netriskscan.com](https://www.netriskscan.com/)
