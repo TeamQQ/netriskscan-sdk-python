@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "netriskscan"
+version = "0.1.0"
+description = "Official Python SDK for IP risk, reputation, proxy, VPN, Tor and network intelligence using the NetRiskScan API."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "NetRiskScan" }]
+requires-python = ">=3.9"
+keywords = [
+  "netriskscan",
+  "ip-risk",
+  "ip-reputation",
+  "ip-intelligence",
+  "ip-lookup",
+  "ip-security",
+  "proxy-detection",
+  "vpn-detection",
+  "tor-detection",
+  "anonymous-ip",
+  "network-intelligence",
+  "network-security",
+  "threat-intelligence",
+  "fraud-detection",
+  "abuse-detection",
+  "cybersecurity",
+  "risk-scoring",
+  "datacenter-detection",
+  "api-client",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Internet",
+  "Topic :: Security",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = ["httpx>=0.24,<1"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.23",
+  "mypy>=1.10",
+  "ruff>=0.6",
+  "build>=1.2",
+]
+
+[project.urls]
+Homepage = "https://www.netriskscan.com/"
+Documentation = "https://github.com/TeamQQ/netriskscan-sdk-python#readme"
+"Developer API" = "https://www.netriskscan.com/"
+Repository = "https://github.com/TeamQQ/netriskscan-sdk-python"
+Issues = "https://github.com/TeamQQ/netriskscan-sdk-python/issues"
+Changelog = "https://github.com/TeamQQ/netriskscan-sdk-python/blob/main/CHANGELOG.md"
+"JavaScript SDK" = "https://www.npmjs.com/package/@netriskscan/sdk"
+CLI = "https://www.npmjs.com/package/netriskscan-cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/netriskscan"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+packages = ["netriskscan"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
