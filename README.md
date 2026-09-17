@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/netriskscan.svg)](https://pypi.org/project/netriskscan/)
 [![CI](https://github.com/TeamQQ/netriskscan-sdk-python/actions/workflows/ci.yml/badge.svg)](https://github.com/TeamQQ/netriskscan-sdk-python/actions/workflows/ci.yml)
 
-Official Python SDK for the [NetRiskScan](https://www.netriskscan.com/) IP Risk & Network Intelligence API: IP reputation, proxy/VPN/Tor detection, datacenter and search-crawler identification, and network intelligence.
+Official Python SDK for the [NetRiskScan](https://www.netriskscan.com/) IP Risk & Reputation API -- a Python IP risk API for IP reputation, IP lookup, proxy/VPN/Tor detection, datacenter and search-crawler identification, and network intelligence.
 
 ```bash
 pip install netriskscan
@@ -35,6 +35,7 @@ print(result.risk.band)  # "excellent" | "good" | "fair" | "poor" | "high_risk" 
 - [Configuration](#configuration)
 - [Type hints](#type-hints)
 - [Use cases](#use-cases)
+- [FAQ](#faq)
 - [API documentation](#api-documentation)
 - [NetRiskScan ecosystem](#netriskscan-ecosystem)
 - [Examples](#examples)
@@ -102,6 +103,8 @@ The key is always sent as `Authorization: Bearer <api-key>` -- never as a URL qu
 
 ## IP risk lookup
 
+The core call. `ip_risk()` is a Python IP risk score API endpoint -- it returns a 0-100 risk index, reputation band, network intelligence, and detection flags in a single request:
+
 ```python
 result = client.ip_risk("8.8.8.8")
 
@@ -128,6 +131,14 @@ result.flags.search_crawler_name  # e.g. "Google", populated only when search_cr
 result.location  # IpLocation | None -- network-level geolocation, not device GPS
 result.tor  # TorInfo | None -- present only when the address is a Tor relay
 ```
+
+### IP lookup and network intelligence
+
+Every `ip_risk()` call returns IP intelligence for the address: ASN, organization, network type (`residential`, `mobile`, `hosting`, `datacenter`, ...), and connection type -- everything a Python IP lookup API needs to return. `result.location` adds IP geolocation data -- country, region, city, and time zone -- at the network level (derived from routing/registration data), not device-level GPS location.
+
+### Proxy, VPN, and Tor detection
+
+`result.flags` carries anonymous IP detection signals for the address: `proxy`, `vpn`, and `tor` (Tor *exit* node specifically -- see `result.tor` for relay/exit/bad-exit detail), plus `datacenter` for hosting/datacenter network identification. Each flag is tri-state (see "`None` is not `False`" below): `True` means detected, `False` means checked and clear, `None` means not evaluated this round.
 
 ### The index is a cleanliness score, not a threat score
 
@@ -167,7 +178,7 @@ Calling `usage()` without an API key raises `ValidationError` immediately, witho
 
 ## Async client
 
-Identical API, `httpx`-based async transport:
+The same Python IP reputation API, available as an async client with an identical interface, built on `httpx`:
 
 ```python
 from netriskscan import AsyncNetRiskScan
@@ -261,12 +272,46 @@ The package ships `py.typed` and is fully annotated. Results are plain, immutabl
 
 ## Use cases
 
-- Detect proxy, VPN, and Tor infrastructure before signup or login
-- Evaluate IP reputation as one signal in a fraud-prevention pipeline
+- Detect proxy, VPN, and Tor infrastructure (anonymous IP detection) before signup or login
+- Evaluate IP reputation and risk score as one signal in a fraud detection pipeline
 - Distinguish verified search-engine crawlers from generic bot/scanner traffic
-- Inspect datacenter and hosting traffic separately from residential networks
+- Inspect datacenter IP addresses and hosting traffic separately from residential networks
 - Add network intelligence (ASN, organization, connection type) to abuse-prevention systems
 - Gate CI/CD or infrastructure checks on a minimum risk index
+
+## FAQ
+
+### How do I check IP reputation in Python?
+
+Install the SDK (`pip install netriskscan`) and call `client.ip_risk("8.8.8.8")` -- no API key required for anonymous, rate-limited use. `result.risk.band` and `result.risk.reasons` give the reputation read. See [IP risk lookup](#ip-risk-lookup).
+
+### How do I check an IP risk score in Python?
+
+`result.risk.index` is a 0-100 cleanliness score (higher = cleaner) from the same `ip_risk()` call. See ["The index is a cleanliness score, not a threat score"](#the-index-is-a-cleanliness-score-not-a-threat-score).
+
+### How do I look up an IP address in Python?
+
+`client.ip_risk(ip)` is the SDK's IP lookup call -- one request returns risk, network intelligence (ASN, organization, connection type), and IP geolocation. See [IP lookup and network intelligence](#ip-lookup-and-network-intelligence).
+
+### How do I detect a proxy IP in Python?
+
+Check `result.flags.proxy` (and `result.flags.proxy_type` when `True`). It's tri-state -- `None` means "not evaluated," not "not a proxy." See [Proxy, VPN, and Tor detection](#proxy-vpn-and-tor-detection).
+
+### How do I detect VPN in Python?
+
+Check `result.flags.vpn` from the same `ip_risk()` response. Combine with `result.flags.proxy` and `result.flags.tor` for full anonymous IP detection.
+
+### Can Python detect Tor exit nodes?
+
+Yes -- `result.flags.tor` flags Tor exit nodes specifically, and `result.tor` (present only for Tor relays) adds `is_relay`, `is_exit`, and `is_bad_exit` detail.
+
+### How do I detect datacenter IP addresses in Python?
+
+Check `result.flags.datacenter`, or read `result.network.type` (`"hosting"`, `"datacenter"`, `"residential"`, `"mobile"`, ...) for the broader network classification.
+
+### Does the SDK support async IP lookups?
+
+Yes -- `AsyncNetRiskScan` mirrors the sync client's API on an `httpx`-based async transport. See [Async client](#async-client).
 
 ## API documentation
 
