@@ -136,6 +136,59 @@ result.tor  # TorInfo | None -- present only when the address is a Tor relay
 
 Every `ip_risk()` call returns IP intelligence for the address: ASN, organization, network type (`residential`, `mobile`, `hosting`, `datacenter`, ...), and connection type -- everything a Python IP lookup API needs to return. `result.location` adds IP geolocation data -- country, region, city, and time zone -- at the network level (derived from routing/registration data), not device-level GPS location.
 
+### Schema 1.6.0 network and location fields
+
+SDK 0.2.0 adds the following optional fields for API Schema 1.6.0. The SDK
+package version and API schema version are independent.
+
+| API JSON field | Python attribute | Type |
+| --- | --- | --- |
+| `network.domain` | `result.network.domain` | `str / None` |
+| `network.range` | `result.network.range` | `str / None` |
+| `location.continentCode` | `location.continent_code` | `str / None` |
+| `location.continent` | `location.continent` | `str / None` |
+| `location.postalCode` | `location.postal_code` | `str / None` |
+| `location.latitude` | `location.latitude` | `float / None` |
+| `location.longitude` | `location.longitude` | `float / None` |
+
+```python
+from netriskscan import NetRiskScan
+
+with NetRiskScan() as client:
+    result = client.ip_risk("8.8.8.8")
+
+    print("Risk Index:", result.risk.index)
+    print("Domain:", result.network.domain)
+    print("Range:", result.network.range)
+
+    if result.location is not None:
+        location = result.location
+        print("Continent:", location.continent)
+        print("Continent Code:", location.continent_code)
+        print("Postal Code:", location.postal_code)
+
+        if location.latitude is not None and location.longitude is not None:
+            print("Coordinates:", location.latitude, location.longitude)
+```
+
+`domain` is the network operator's trusted primary domain, such as `google.com`;
+it does not identify a hosted website, cloud customer, or PTR hostname, and the
+SDK never guesses a domain from an ASN name. `range` is the server's canonical
+CIDR containing the queried IP, for IPv4 or IPv6; the SDK preserves it unchanged.
+
+Coordinates describe an approximate network location, not device GPS. Anycast
+addresses may have no coordinates. Latitude ranges from -90 to 90 and longitude
+from -180 to 180, as guaranteed by the server. Check explicitly for `None`:
+`0.0` is a valid coordinate, and `None` is distinct from both `False` and numeric
+zero. Postal codes stay strings, preserving leading zeros such as `"00501"`.
+
+Older servers may omit these fields; missing fields and explicit JSON `null`
+both become `None`. The entire `location` may also be `None`. The SDK performs
+no risk scoring, geolocation inference, or missing-value completion. Both clients
+use the same immutable, publicly exported `IpNetwork`, `IpLocation`, and
+`IpRiskResult` models. With `AsyncNetRiskScan`, access the same fields on
+`result = await client.ip_risk("8.8.8.8")`.
+
 ### Proxy, VPN, and Tor detection
 
 `result.flags` carries anonymous IP detection signals for the address: `proxy`, `vpn`, and `tor` (Tor *exit* node specifically -- see `result.tor` for relay/exit/bad-exit detail), plus `datacenter` for hosting/datacenter network identification. Each flag is tri-state (see "`None` is not `False`" below): `True` means detected, `False` means checked and clear, `None` means not evaluated this round.

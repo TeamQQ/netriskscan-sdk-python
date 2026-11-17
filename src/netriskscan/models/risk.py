@@ -74,6 +74,10 @@ class IpNetwork:
     ``profile`` and ``service`` are ``None`` both when the server omits them
     (no first-party record) and when it sends an explicit null -- both mean
     the same thing: nothing to report.
+
+    ``domain`` is the trusted primary domain of the network operator, not a
+    hosted website or PTR hostname. ``range`` is the server-provided CIDR
+    containing the queried address (IPv4 or IPv6). Neither is inferred here.
     """
 
     type: str | None
@@ -82,6 +86,8 @@ class IpNetwork:
     organization: str | None
     profile: str | None = None
     service: str | None = None
+    domain: str | None = None
+    range: str | None = None
 
     @classmethod
     def _from_json(cls, data: dict[str, Any]) -> IpNetwork:
@@ -92,6 +98,8 @@ class IpNetwork:
             organization=_get(data, "organization"),
             profile=_get(data, "profile"),
             service=_get(data, "service"),
+            domain=_get(data, "domain"),
+            range=_get(data, "range"),
         )
 
 
@@ -139,7 +147,12 @@ class IpFlags:
 
 @dataclass(frozen=True)
 class IpLocation:
-    """Network-level geolocation (registration/routing), not device GPS."""
+    """Network-level geolocation (registration/routing), not device GPS.
+
+    Missing fields and explicit null map to ``None``. Coordinates may be
+    unavailable for anycast; ``0.0`` is a valid coordinate. ``postal_code``
+    stays a string, including leading zeros. Values are never inferred here.
+    """
 
     country_code: str | None
     country: str | None
@@ -147,6 +160,11 @@ class IpLocation:
     region: str | None
     city: str | None
     time_zone: str | None
+    continent_code: str | None = None
+    continent: str | None = None
+    postal_code: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     @classmethod
     def _from_json(cls, data: dict[str, Any]) -> IpLocation:
@@ -157,6 +175,11 @@ class IpLocation:
             region=_get(data, "region"),
             city=_get(data, "city"),
             time_zone=_get(data, "timeZone"),
+            continent_code=_get(data, "continentCode"),
+            continent=_get(data, "continent"),
+            postal_code=_get(data, "postalCode"),
+            latitude=_get(data, "latitude"),
+            longitude=_get(data, "longitude"),
         )
 
 

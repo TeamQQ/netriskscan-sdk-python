@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "netriskscan"
-version = "0.1.0"
+version = "0.2.0"
 description = "Official Python SDK for IP risk scoring, IP reputation, IP lookup, proxy/VPN/Tor detection and network intelligence using the NetRiskScan API."
 readme = "README.md"
 license = "MIT"
