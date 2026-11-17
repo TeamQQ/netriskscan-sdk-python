@@ -7,11 +7,19 @@ Every test builds an ``httpx.Client``/``httpx.AsyncClient`` around an
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from typing import Any, Callable
 
 import httpx
+import pytest
 
 Handler = Callable[[httpx.Request], httpx.Response]
+
+
+@pytest.fixture(autouse=True)
+def isolate_api_key_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep anonymous tests independent of credentials on the host machine."""
+    monkeypatch.delenv("NETRISKSCAN_API_KEY", raising=False)
 
 
 def json_response(
@@ -91,6 +99,23 @@ SAMPLE_UNSCOREABLE_IP_RISK_BODY: dict[str, Any] = {
     },
     "location": None,
 }
+
+
+@pytest.fixture
+def schema_160_body() -> dict[str, Any]:
+    """Synthetic unicast response, independent of live IP geolocation."""
+    body = deepcopy(SAMPLE_IP_RISK_BODY)
+    body["ip"] = "192.0.2.10"
+    body["network"].update(domain="operator.example", range="192.0.2.0/24")
+    body["location"].update(
+        continentCode="NA",
+        continent="North America",
+        postalCode="00501",
+        latitude=40.81,
+        longitude=-73.04,
+    )
+    return body
+
 
 SAMPLE_USAGE_BODY: dict[str, Any] = {
     "plan": "growth",
