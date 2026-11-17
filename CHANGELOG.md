@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-11-17
 
 - Support API Schema 1.6.0 with optional `IpNetwork.domain` and `IpNetwork.range`.
 - Add optional `IpLocation.continent_code`, `continent`, `postal_code`, `latitude`, and `longitude`.
